@@ -9,7 +9,7 @@ type CustomJwtPayload = jwt.JwtPayload & RefreshTokenPayload;
 
 export class JwtRefreshTokenAdapter implements RefreshTokenGenerator {
   private REFRESH_TOKEN_SECRET: string = 'access token';
-  async generate(userId: string, companyId: string): Promise<string> {
+  async generate(userId: string, companyId?: string): Promise<string> {
     return jwt.sign({ companyId }, this.REFRESH_TOKEN_SECRET, {
       subject: userId,
       expiresIn: EXPIRES_IN_ONE_WEEK,

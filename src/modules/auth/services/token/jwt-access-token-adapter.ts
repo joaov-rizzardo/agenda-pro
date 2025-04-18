@@ -17,6 +17,7 @@ export class JwtAccessTokenAdapter implements AccessTokenGenerator {
       {
         email: options.email,
         role: options.role,
+        companyRole: options.companyRole,
         companyId: options.companyId,
       },
       this.ACCESS_TOKEN_SECRET,
@@ -38,6 +39,7 @@ export class JwtAccessTokenAdapter implements AccessTokenGenerator {
     return {
       sub: accessToken.sub,
       companyId: accessToken.companyId,
+      companyRole: accessToken.companyRole,
       email: accessToken.email,
       exp: accessToken.exp,
       iat: accessToken.iat,

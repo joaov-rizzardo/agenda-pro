@@ -18,12 +18,18 @@ model User {
   name          String
   lastName      String
   email         String          @unique
+  role          UserRole        @default(USER)
   password      String
   phone         String?
   avatarUrl     String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   CompanyMember CompanyMember[]
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }
 
 model Company {

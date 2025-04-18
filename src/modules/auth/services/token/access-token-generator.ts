@@ -1,12 +1,14 @@
 import { Awaitable } from 'src/common/type-utilities';
 import { CompanyRoles } from 'src/modules/company/types/company-roles';
 import { AccessTokenPayload } from '../../types/token-payload';
+import { UserRoles } from 'src/modules/user/types/user-roles';
 
 export interface AccessTokenOptions {
   userId: string;
   email: string;
-  companyId: string;
-  role: CompanyRoles;
+  companyId?: string;
+  companyRole?: CompanyRoles;
+  role: UserRoles;
 }
 
 export abstract class AccessTokenGenerator {
