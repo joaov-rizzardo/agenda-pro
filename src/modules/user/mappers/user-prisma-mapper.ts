@@ -6,6 +6,7 @@ export class UserPrismaMapper {
     return new User({
       id: user.id,
       name: user.name,
+      role: user.role,
       lastName: user.lastName,
       email: user.email,
       password: user.password,

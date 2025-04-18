@@ -5,6 +5,7 @@ export class UserEntityMapper {
     return {
       id: user.id,
       name: user.name,
+      role: user.role,
       lastName: user.lastName,
       email: user.email,
       avatarUrl: user.avatarUrl,

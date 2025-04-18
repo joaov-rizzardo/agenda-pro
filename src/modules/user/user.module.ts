@@ -23,6 +23,6 @@ import { CreateUserUseCase } from './use-cases/create-user-use-case';
     UserEmailUniquenessChecker,
     CreateUserUseCase,
   ],
-  exports: [UserRepository, PasswordHasher, CreateUserUseCase],
+  exports: [UserRepository, PasswordHasher],
 })
 export class UserModule {}

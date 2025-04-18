@@ -1,6 +1,9 @@
+import { UserRoles } from '../types/user-roles';
+
 interface UserParams {
   id: string;
   name: string;
+  role: UserRoles;
   lastName: string;
   email: string;
   password: string;
@@ -13,6 +16,7 @@ interface UserParams {
 export class User {
   public id: string;
   public name: string;
+  public role: UserRoles;
   public lastName: string;
   public email: string;
   public password: string;
@@ -24,6 +28,7 @@ export class User {
   constructor(params: UserParams) {
     this.id = params.id;
     this.name = params.name;
+    this.role = params.role;
     this.lastName = params.lastName;
     this.email = params.email;
     this.password = params.password;
