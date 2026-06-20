@@ -6,10 +6,21 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface-alt: var(--surface-alt);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-fg: var(--success-fg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-fg: var(--warn-fg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-fg: var(--danger-fg);
+  --font-display: var(--font-sora);
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-mono: var(--font-space-mono);
+  --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,25 +57,58 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-scan-line: scan-line 2.4s ease-in-out infinite;
+}
+
+@keyframes scan-line {
+  0%,
+  100% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    top: 100%;
+  }
+  90% {
+    opacity: 1;
+  }
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Check-in Glass base/surface/ink tokens (base-50/base-100/white-0/ink-900/ink-600) */
+  --background: oklch(0.967 0.010 267.4);
+  --surface-alt: oklch(0.941 0.017 271.2);
+  --foreground: oklch(0.231 0.025 277.4);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --muted-foreground: oklch(0.491 0.039 277.5);
+
+  /*
+   * Brand override point (FR-009): --primary, --gradient-primary, and
+   * --gradient-primary-cta are the only tokens a future per-tenant feature
+   * may reassign (e.g. on a scoping wrapper element). If overridden, the
+   * AA-safe darkening relationship from research.md item 3 must be
+   * preserved: --gradient-primary-cta's two stops must each keep >=4.5:1
+   * contrast against white text, even though --gradient-primary (the
+   * lighter decorative pair) does not need to.
+   */
+  --primary: oklch(0.540 0.240 285.0);
+  --primary-foreground: oklch(1 0 0);
+  --gradient-primary: linear-gradient(135deg, oklch(0.599 0.230 286.2) 0%, oklch(0.799 0.133 182.1) 100%);
+  --gradient-primary-cta: linear-gradient(135deg, oklch(0.540 0.240 285.0) 0%, oklch(0.520 0.092 180.0) 100%);
+
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
+  --border: oklch(0.911 0.021 274.0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -72,7 +116,24 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+
+  /* Semantic state tokens: dot/icon color + accessible tint-bg/shade-fg badge pair */
+  --success: oklch(0.664 0.149 157.4);
+  --success-bg: oklch(0.961 0.021 163.1);
+  --success-fg: oklch(0.512 0.115 158.3);
+  --warn: oklch(0.689 0.140 64.1);
+  --warn-bg: oklch(0.958 0.023 71.8);
+  --warn-fg: oklch(0.533 0.116 60.6);
+  --danger: oklch(0.627 0.182 24.0);
+  --danger-bg: oklch(0.951 0.020 17.5);
+  --danger-fg: oklch(0.520 0.174 25.7);
+
+  /* Glass surface treatment — consumed only via the GlassPanel component */
+  --glass-bg: oklch(1 0 0 / 0.6);
+  --glass-blur: 18px;
+  --glass-border: oklch(1 0 0 / 0.4);
+
+  --radius: 1.25rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -81,6 +142,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-bg: oklch(1 0 0);
+    --glass-blur: 0px;
+    --glass-border: var(--border);
+  }
 }
 
 .dark {
