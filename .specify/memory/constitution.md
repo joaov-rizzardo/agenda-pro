@@ -1,16 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
+- Version change: 1.1.0 → 1.2.0
 - Modified principles:
-  - VII. Strictly Prohibited Antipatterns → VIII. Strictly Prohibited Antipatterns (renumbered, list expanded)
+  - VIII. Strictly Prohibited Antipatterns — list expanded with a mobile-first antipattern entry
 - Added sections:
-  - VII. Component Architecture, Separation of Concerns & Client State (new principle)
+  - IX. Mobile-First Development (new principle)
 - Removed sections: none
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md — Constitution Check gate is generic/dynamic, no edit required
   - ✅ .specify/templates/spec-template.md — no constitution-specific references, no edit required
   - ✅ .specify/templates/tasks-template.md — no constitution-specific references, no edit required
   - ⚠ .specify/templates/commands/*.md — directory does not exist in this project, nothing to sync
+  - ✅ AGENTS.md / CLAUDE.md — no mobile-specific guidance present to reconcile, no edit required
 - Follow-up TODOs: none
 -->
 
@@ -230,11 +231,39 @@ agent-driven changes MUST reject these on sight:
   of React Query.
 - Storing server data (anything fetched from an API route) inside a Zustand
   store instead of letting React Query own it as cache.
+- Designing or implementing a new layout desktop-first and treating the
+  mobile viewport as an afterthought or retrofit (Principle IX).
 
 **Rationale**: These are not style preferences — each one maps to a concrete
 failure already known to be costly in this stack (tenant data leaks, security
 boundary bypasses, visual inconsistency, or silently broken behavior from
 outdated API assumptions). Naming them explicitly removes ambiguity.
+
+### IX. Mobile-First Development (NON-NEGOTIABLE)
+
+- All new layouts, screens, and components MUST be designed and implemented
+  mobile-first: build and verify the smallest-breakpoint layout first, then
+  progressively enhance upward with Tailwind's `sm:`/`md:`/`lg:`/`xl:`
+  variants — never the inverse of designing for desktop and retrofitting a
+  mobile fallback.
+- The public booking/check-in pages — the primary unauthenticated,
+  account-less entry point — MUST be treated as mobile-first by default,
+  since end customers overwhelmingly arrive on a phone; the desktop layout is
+  the enhancement, not the baseline.
+- Every `frontend-design` skill invocation (Principle IV) MUST produce and
+  validate the mobile viewport composition before any wider-breakpoint
+  variant is designed or implemented.
+- Touch targets, spacing, and the type scale MUST remain usable at the
+  smallest supported viewport: no fixed-width layouts, and no horizontal
+  scroll required to reach primary actions or content.
+- Manual or visual verification of a new or changed screen MUST check the
+  mobile viewport, not desktop only, before the work is considered complete.
+
+**Rationale**: Agenda Pro's highest-stakes surface — the public booking/
+check-in flow — is overwhelmingly used on mobile devices by end customers
+with no account and no patience for a desktop layout shrunk to fit a phone.
+Designing desktop-first and retrofitting mobile reliably produces cramped,
+broken, or slow mobile experiences exactly where conversion matters most.
 
 ## Technology Stack & Constraints
 
@@ -260,7 +289,11 @@ outdated API assumptions). Naming them explicitly removes ambiguity.
 ## Development Workflow & Quality Gates
 
 - Any task that creates or changes layout/UI MUST invoke the `frontend-design`
-  skill before implementation, per Principle IV.
+  skill before implementation, per Principle IV, and that invocation MUST
+  cover the mobile viewport first, per Principle IX.
+- New or changed screens MUST be verified at a mobile viewport width before
+  being considered complete, in addition to any wider breakpoint (Principle
+  IX).
 - TypeScript type-checking and lint MUST pass before a change is considered
   complete; `any`/unchecked `unknown` on API or Prisma boundaries is a
   blocking issue, not a warning (Principles III, VII).
@@ -301,4 +334,4 @@ reference the principles above by name when justifying or flagging
 deviations. Repeated or unjustified violations of a NON-NEGOTIABLE principle
 block merge regardless of feature priority.
 
-**Version**: 1.1.0 | **Ratified**: 2026-06-19 | **Last Amended**: 2026-06-19
+**Version**: 1.2.0 | **Ratified**: 2026-06-19 | **Last Amended**: 2026-06-19
