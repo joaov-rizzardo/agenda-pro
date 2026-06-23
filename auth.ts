@@ -1,9 +1,78 @@
+import type { AdapterUser } from "next-auth/adapters";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import Google, { type GoogleProfile } from "next-auth/providers/google";
 
+import authConfig from "@/auth.config";
+import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
-  providers: [],
+  session: { strategy: "jwt" },
+  providers: [
+    Credentials({
+      credentials: {
+        email: {},
+        password: {},
+      },
+      async authorize(credentials) {
+        const email =
+          typeof credentials?.email === "string" ? credentials.email : null;
+        const password =
+          typeof credentials?.password === "string"
+            ? credentials.password
+            : null;
+
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user?.passwordHash) return null;
+
+        const isValidPassword = await verifyPassword(
+          password,
+          user.passwordHash
+        );
+        if (!isValidPassword) return null;
+
+        if (!user.emailVerified) return null;
+
+        return user;
+      },
+    }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    }),
+  ],
+  callbacks: {
+    ...authConfig.callbacks,
+    async signIn({ account, profile }) {
+      if (account?.provider === "google") {
+        return (profile as GoogleProfile | undefined)?.email_verified === true;
+      }
+      return true;
+    },
+  },
+  events: {
+    async signIn({ user, account, profile }) {
+      const adapterUser = user as AdapterUser;
+      if (
+        account?.provider !== "google" ||
+        !adapterUser.id ||
+        adapterUser.emailVerified
+      ) {
+        return;
+      }
+      if ((profile as GoogleProfile | undefined)?.email_verified === true) {
+        await prisma.user.update({
+          where: { id: adapterUser.id },
+          data: { emailVerified: new Date() },
+        });
+      }
+    },
+  },
 });

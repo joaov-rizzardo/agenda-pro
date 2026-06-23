@@ -1,17 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 1.2.0
+- Version change: 1.2.0 → 1.3.0
 - Modified principles:
-  - VIII. Strictly Prohibited Antipatterns — list expanded with a mobile-first antipattern entry
+  - VIII. Strictly Prohibited Antipatterns — list expanded with a pt-BR copy antipattern entry
 - Added sections:
-  - IX. Mobile-First Development (new principle)
+  - X. User-Facing Language (pt-BR) (new principle)
 - Removed sections: none
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md — Constitution Check gate is generic/dynamic, no edit required
   - ✅ .specify/templates/spec-template.md — no constitution-specific references, no edit required
   - ✅ .specify/templates/tasks-template.md — no constitution-specific references, no edit required
   - ⚠ .specify/templates/commands/*.md — directory does not exist in this project, nothing to sync
-  - ✅ AGENTS.md / CLAUDE.md — no mobile-specific guidance present to reconcile, no edit required
+  - ✅ AGENTS.md / CLAUDE.md — no language-specific guidance present to reconcile, no edit required
 - Follow-up TODOs: none
 -->
 
@@ -233,6 +233,9 @@ agent-driven changes MUST reject these on sight:
   store instead of letting React Query own it as cache.
 - Designing or implementing a new layout desktop-first and treating the
   mobile viewport as an afterthought or retrofit (Principle IX).
+- Shipping new user-facing screen copy or transactional email content in
+  English (or any language other than pt-BR), or leaving translation to a
+  follow-up pass instead of writing it in pt-BR from the start (Principle X).
 
 **Rationale**: These are not style preferences — each one maps to a concrete
 failure already known to be costly in this stack (tenant data leaks, security
@@ -265,6 +268,29 @@ with no account and no patience for a desktop layout shrunk to fit a phone.
 Designing desktop-first and retrofitting mobile reliably produces cramped,
 broken, or slow mobile experiences exactly where conversion matters most.
 
+### X. User-Facing Language (pt-BR) (NON-NEGOTIABLE)
+
+- Every piece of text a real end user (business owner or public booking
+  customer) sees MUST be written in Brazilian Portuguese (pt-BR): screen
+  copy, headings, form labels and placeholders, buttons, validation/error
+  messages, success/confirmation states, and transactional emails (subject
+  line and body).
+- This principle governs user-facing text only. Code identifiers, comments,
+  commit messages, internal documentation, and developer-facing output
+  (console/server logs, stack traces, error codes surfaced only in logs)
+  remain in English.
+- The HTML `lang` attribute on any document a user-facing page or email
+  renders (`app/layout.tsx`, standalone email templates) MUST be set to
+  `pt-BR` wherever pt-BR content is rendered.
+- New screens, components, or emails MUST ship with pt-BR copy from the
+  start — translation is not a follow-up pass done after merge.
+
+**Rationale**: Agenda Pro's business owners and their end customers are a
+Brazilian Portuguese–speaking audience. English (or mixed-language) copy
+anywhere in the user-facing surface — a screen, a button, or a transactional
+email — breaks the product experience and reads as unfinished, regardless of
+how correct the underlying logic is.
+
 ## Technology Stack & Constraints
 
 - **Frontend**: Next.js 16 (App Router) + React 19 + Tailwind CSS + shadcn/ui.
@@ -294,6 +320,9 @@ broken, or slow mobile experiences exactly where conversion matters most.
 - New or changed screens MUST be verified at a mobile viewport width before
   being considered complete, in addition to any wider breakpoint (Principle
   IX).
+- New or changed user-facing copy (screens, emails) MUST be written in pt-BR
+  before being considered complete; English placeholder copy left in a
+  user-facing surface is a blocking issue, not a follow-up (Principle X).
 - TypeScript type-checking and lint MUST pass before a change is considered
   complete; `any`/unchecked `unknown` on API or Prisma boundaries is a
   blocking issue, not a warning (Principles III, VII).
@@ -334,4 +363,4 @@ reference the principles above by name when justifying or flagging
 deviations. Repeated or unjustified violations of a NON-NEGOTIABLE principle
 block merge regardless of feature priority.
 
-**Version**: 1.2.0 | **Ratified**: 2026-06-19 | **Last Amended**: 2026-06-19
+**Version**: 1.3.0 | **Ratified**: 2026-06-19 | **Last Amended**: 2026-06-23
