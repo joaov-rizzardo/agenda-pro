@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { CredentialsSignin } from "next-auth";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { Prisma } from "@/generated/prisma/client";
 import { hashPassword } from "@/lib/auth/password";
 import { createVerificationToken } from "@/lib/auth/verification-token";
@@ -106,4 +106,8 @@ export async function logIn(
 
 export async function signInWithGoogle(): Promise<void> {
   await signIn("google", { redirectTo: "/dashboard" });
+}
+
+export async function logOut(): Promise<void> {
+  await signOut({ redirectTo: "/login" });
 }
