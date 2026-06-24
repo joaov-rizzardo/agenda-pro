@@ -8,6 +8,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { resolveWorkspaceRoute } from "@/lib/workspace/workspace-service";
 
 export default async function DashboardLayout({
   children,
@@ -18,6 +19,19 @@ export default async function DashboardLayout({
 
   if (!session) {
     redirect("/login");
+  }
+
+  const decision = await resolveWorkspaceRoute(
+    session.user.id,
+    session.user.activeWorkspaceId
+  );
+
+  if (decision.type === "onboarding") {
+    redirect("/onboarding");
+  }
+
+  if (decision.type === "select-workspace") {
+    redirect("/selecionar-workspace");
   }
 
   return (

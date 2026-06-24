@@ -8,7 +8,7 @@ import authConfig from "@/auth.config";
 import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
@@ -65,6 +65,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return (profile as GoogleProfile | undefined)?.email_verified === true;
       }
       return true;
+    },
+    async jwt({ token, trigger, user, session }) {
+      if (trigger === "signIn" || trigger === "signUp") {
+        const memberships = await prisma.workspaceMembership.findMany({
+          where: { userId: user.id },
+          select: { workspaceId: true },
+          take: 2,
+        });
+        token.activeWorkspaceId =
+          memberships.length === 1 ? memberships[0].workspaceId : undefined;
+      } else if (trigger === "update") {
+        token.activeWorkspaceId = session?.user?.activeWorkspaceId;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token.sub) {
+        session.user.id = token.sub;
+      }
+      session.user.activeWorkspaceId = token.activeWorkspaceId ?? null;
+      return session;
     },
   },
   events: {
