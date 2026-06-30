@@ -90,7 +90,7 @@ export async function selectWorkspace(formData: FormData): Promise<void> {
   const membership = await prisma.workspaceMembership.findUnique({
     where: { userId_workspaceId: { userId: session.user.id, workspaceId } },
   });
-  if (!membership) {
+  if (!membership || membership.status !== "ACTIVE") {
     redirect("/selecionar-workspace");
   }
 

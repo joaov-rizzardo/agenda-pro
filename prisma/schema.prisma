@@ -21,12 +21,25 @@ model User {
   sessions             Session[]
   createdWorkspaces    Workspace[]
   workspaceMemberships WorkspaceMembership[]
+  invitesSent          WorkspaceInvite[]     @relation("InvitesSent")
 }
 
 enum WorkspaceRole {
   OWNER
   ADMIN
   MEMBER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
 }
 
 model Workspace {
@@ -38,21 +51,74 @@ model Workspace {
 
   createdBy   User                  @relation(fields: [createdById], references: [id])
   memberships WorkspaceMembership[]
+  invites     WorkspaceInvite[]
+  services    Service[]
 }
 
 model WorkspaceMembership {
-  id          String        @id @default(cuid())
+  id          String           @id @default(cuid())
   userId      String
   workspaceId String
   role        WorkspaceRole
-  createdAt   DateTime      @default(now())
+  status      MembershipStatus @default(ACTIVE)
+  jobTitle    String?
+  createdAt   DateTime         @default(now())
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
+  services ProfessionalService[]
+
   @@unique([userId, workspaceId])
   @@index([userId])
   @@index([workspaceId])
+}
+
+model WorkspaceInvite {
+  id          String       @id @default(cuid())
+  workspaceId String
+  email       String
+  name        String?
+  role        WorkspaceRole
+  jobTitle    String?
+  tokenHash   String       @unique
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime
+  invitedById String
+  createdAt   DateTime     @default(now())
+  acceptedAt  DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy User      @relation("InvitesSent", fields: [invitedById], references: [id])
+
+  @@index([workspaceId])
+  @@index([email])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  createdAt   DateTime @default(now())
+
+  workspace     Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  professionals ProfessionalService[]
+
+  @@index([workspaceId])
+}
+
+model ProfessionalService {
+  id           String   @id @default(cuid())
+  membershipId String
+  serviceId    String
+  createdAt    DateTime @default(now())
+
+  membership WorkspaceMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  service    Service             @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([membershipId, serviceId])
+  @@index([membershipId])
+  @@index([serviceId])
 }
 
 model Account {

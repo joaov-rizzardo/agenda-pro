@@ -10,6 +10,7 @@ import { createVerificationToken } from "@/lib/auth/verification-token";
 import { sendVerificationEmail } from "@/lib/email/send-verification-email";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema, SignUpSchema } from "@/lib/validation/auth";
+import { acceptInvite } from "@/lib/workspace/invite-service";
 
 export type SignUpState =
   | undefined
@@ -18,7 +19,7 @@ export type SignUpState =
         Record<"firstName" | "lastName" | "email" | "password", string[]>
       >;
     }
-  | { success: true };
+  | { success: true; invited?: boolean };
 
 const EMAIL_IN_USE_ERROR = "Já existe uma conta com esse e-mail.";
 
@@ -46,8 +47,9 @@ export async function signUp(
 
   const passwordHash = await hashPassword(password);
 
+  let userId: string;
   try {
-    await prisma.user.create({
+    const created = await prisma.user.create({
       data: {
         firstName,
         lastName,
@@ -56,6 +58,7 @@ export async function signUp(
         emailVerified: null,
       },
     });
+    userId = created.id;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -64,6 +67,20 @@ export async function signUp(
       return { errors: { email: [EMAIL_IN_USE_ERROR] } };
     }
     throw error;
+  }
+
+  // Invite carry-through (SC-002): when signup came from an invite link, accept
+  // it now — this sets emailVerified (the tokenized link proves ownership) and
+  // adds the active membership, so the new user can log straight into the
+  // workspace with no separate verification step.
+  const inviteToken = formData.get("invite");
+  if (typeof inviteToken === "string" && inviteToken) {
+    try {
+      await acceptInvite({ userId, rawToken: inviteToken });
+      return { success: true, invited: true };
+    } catch {
+      // Invalid/expired invite — fall back to the standard verification flow.
+    }
   }
 
   const token = await createVerificationToken(email);

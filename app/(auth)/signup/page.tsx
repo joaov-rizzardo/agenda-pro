@@ -9,8 +9,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getInviteByToken } from "@/lib/workspace/invite-service";
 
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite?: string }>;
+}) {
+  const { invite: inviteToken } = await searchParams;
+  const invite = inviteToken ? await getInviteByToken(inviteToken) : null;
+  const lockedEmail = invite?.isValid ? invite.email : undefined;
+  const validInviteToken = invite?.isValid ? inviteToken : undefined;
+
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center gap-6 overflow-hidden p-6 py-12">
       <div
@@ -29,12 +39,17 @@ export default function SignupPage() {
               Crie sua conta
             </CardTitle>
             <CardDescription>
-              Configure seu negócio e comece a receber agendamentos.
+              {lockedEmail
+                ? "Você foi convidado para um workspace. Crie sua conta para aceitar o convite."
+                : "Configure seu negócio e comece a receber agendamentos."}
             </CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8">
-            <SignupForm>
-              <GoogleSignInButton />
+            <SignupForm
+              inviteToken={validInviteToken}
+              lockedEmail={lockedEmail}
+            >
+              {!lockedEmail && <GoogleSignInButton />}
             </SignupForm>
           </CardContent>
         </Card>

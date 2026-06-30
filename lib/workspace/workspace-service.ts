@@ -13,7 +13,7 @@ export async function resolveWorkspaceRoute(
   activeWorkspaceId: string | null | undefined
 ): Promise<WorkspaceRouteDecision> {
   const memberships = await prisma.workspaceMembership.findMany({
-    where: { userId },
+    where: { userId, status: "ACTIVE" },
     orderBy: { createdAt: "asc" },
     select: {
       role: true,

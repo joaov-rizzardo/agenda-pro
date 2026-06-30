@@ -8,24 +8,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function SignupForm({ children }: { children?: React.ReactNode }) {
+export function SignupForm({
+  children,
+  inviteToken,
+  lockedEmail,
+}: {
+  children?: React.ReactNode;
+  inviteToken?: string;
+  lockedEmail?: string;
+}) {
   const [state, formAction, pending] = useActionState(signUp, undefined);
 
   if (state && "success" in state) {
+    const invited = "invited" in state && state.invited;
     return (
       <div className="flex flex-col items-center gap-3 py-6 text-center">
         <div className="flex size-12 items-center justify-center rounded-full bg-success-bg">
           <Mail className="size-6 text-success-fg" />
         </div>
         <h2 className="font-display text-xl font-semibold text-foreground">
-          Verifique seu e-mail
+          {invited ? "Conta criada!" : "Verifique seu e-mail"}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Enviamos um link de verificação para confirmar seu endereço. Clique
-          nele para ativar sua conta e depois volte para entrar.
+          {invited
+            ? "Sua conta foi criada e você já faz parte do workspace. Entre para começar."
+            : "Enviamos um link de verificação para confirmar seu endereço. Clique nele para ativar sua conta e depois volte para entrar."}
         </p>
         <Button asChild variant="outline" className="mt-2">
-          <a href="/login">Voltar para o login</a>
+          <a href="/login">{invited ? "Entrar" : "Voltar para o login"}</a>
         </Button>
       </div>
     );
@@ -36,6 +46,9 @@ export function SignupForm({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-4">
       <form action={formAction} className="flex flex-col gap-4">
+        {inviteToken && (
+          <input type="hidden" name="invite" value={inviteToken} />
+        )}
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="firstName">Nome</Label>
@@ -76,6 +89,10 @@ export function SignupForm({ children }: { children?: React.ReactNode }) {
             autoComplete="email"
             aria-invalid={!!errors?.email}
             required
+            defaultValue={lockedEmail}
+            readOnly={!!lockedEmail}
+            aria-readonly={!!lockedEmail}
+            className={lockedEmail ? "bg-muted text-muted-foreground" : undefined}
           />
           {errors?.email && (
             <p className="text-xs text-destructive">{errors.email[0]}</p>

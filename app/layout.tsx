@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Sora, Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
+import { Toaster } from "@/components/ui/sonner";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -35,7 +37,10 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${sora.variable} ${plusJakartaSans.variable} ${spaceMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Providers>{children}</Providers>
+        <Toaster />
+      </body>
     </html>
   );
 }
