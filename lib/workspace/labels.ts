@@ -1,4 +1,5 @@
 import type {
+  AppointmentStatus,
   MembershipStatus,
   ServiceStatus,
   WorkspaceRole,
@@ -18,4 +19,11 @@ export const STATUS_LABELS: Record<MembershipStatus, string> = {
 export const SERVICE_STATUS_LABELS: Record<ServiceStatus, string> = {
   ACTIVE: "Ativo",
   INACTIVE: "Inativo",
+};
+
+export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
+  SCHEDULED: "Agendado",
+  COMPLETED: "Concluído",
+  CANCELLED: "Cancelado",
+  NO_SHOW: "Não compareceu",
 };
