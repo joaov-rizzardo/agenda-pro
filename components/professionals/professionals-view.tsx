@@ -8,7 +8,6 @@ import { useMembers } from "@/hooks/professionals/use-members";
 import { InviteProfessionalDialog } from "@/components/professionals/invite-professional-dialog";
 import { PendingInvitesList } from "@/components/professionals/pending-invites-list";
 import { ProfessionalListItem } from "@/components/professionals/professional-list-item";
-import { ProfessionalServicesSection } from "@/components/professionals/professional-services-section";
 
 export function ProfessionalsView({
   callerRole,
@@ -61,8 +60,6 @@ export function ProfessionalsView({
           </div>
         )}
       </section>
-
-      <ProfessionalServicesSection />
     </div>
   );
 }

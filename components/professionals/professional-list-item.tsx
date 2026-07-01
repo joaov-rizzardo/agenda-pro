@@ -13,6 +13,7 @@ import { MemberRoleSelect } from "@/components/professionals/member-role-select"
 import { MemberStatusToggle } from "@/components/professionals/member-status-toggle";
 import { ProfessionalAvatar } from "@/components/professionals/professional-avatar";
 import { ProfessionalPhotoUploader } from "@/components/professionals/professional-photo-uploader";
+import { ProfessionalServicesSection } from "@/components/professionals/professional-services-section";
 
 function JobTitleField({ member }: { member: MemberDTO }) {
   const updateMember = useUpdateMember();
@@ -58,54 +59,61 @@ export function ProfessionalListItem({
   const canManage = callerRole === "OWNER" || callerRole === "ADMIN";
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-card p-4 ring-1 ring-border md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4">
-      <div className="flex items-center gap-3">
-        {canManage ? (
-          <ProfessionalPhotoUploader member={member} />
-        ) : (
-          <ProfessionalAvatar
-            firstName={member.firstName}
-            lastName={member.lastName}
-            image={member.image}
-          />
-        )}
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate font-display font-semibold text-foreground">
-            {member.firstName} {member.lastName}
-          </span>
-          <span className="truncate text-sm text-muted-foreground">
-            {member.email}
-          </span>
+    <div className="flex flex-col gap-4 rounded-2xl bg-card p-4 ring-1 ring-border">
+      <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4">
+        <div className="flex items-center gap-3">
+          {canManage ? (
+            <ProfessionalPhotoUploader member={member} />
+          ) : (
+            <ProfessionalAvatar
+              firstName={member.firstName}
+              lastName={member.lastName}
+              image={member.image}
+            />
+          )}
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate font-display font-semibold text-foreground">
+              {member.firstName} {member.lastName}
+            </span>
+            <span className="truncate text-sm text-muted-foreground">
+              {member.email}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {canManage ? (
+            <>
+              <JobTitleField member={member} />
+              <MemberRoleSelect member={member} callerRole={callerRole} />
+              <MemberStatusToggle member={member} callerRole={callerRole} />
+            </>
+          ) : (
+            <>
+              {member.jobTitle && (
+                <span className="text-sm text-muted-foreground">
+                  {member.jobTitle}
+                </span>
+              )}
+              <Badge variant="outline">{ROLE_LABELS[member.role]}</Badge>
+              <Badge
+                className={
+                  member.status === "ACTIVE"
+                    ? "border-success-fg/20 bg-success-bg text-success-fg"
+                    : "border-border bg-muted text-muted-foreground"
+                }
+              >
+                {STATUS_LABELS[member.status]}
+              </Badge>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        {canManage ? (
-          <>
-            <JobTitleField member={member} />
-            <MemberRoleSelect member={member} callerRole={callerRole} />
-            <MemberStatusToggle member={member} callerRole={callerRole} />
-          </>
-        ) : (
-          <>
-            {member.jobTitle && (
-              <span className="text-sm text-muted-foreground">
-                {member.jobTitle}
-              </span>
-            )}
-            <Badge variant="outline">{ROLE_LABELS[member.role]}</Badge>
-            <Badge
-              className={
-                member.status === "ACTIVE"
-                  ? "border-success-fg/20 bg-success-bg text-success-fg"
-                  : "border-border bg-muted text-muted-foreground"
-              }
-            >
-              {STATUS_LABELS[member.status]}
-            </Badge>
-          </>
-        )}
-      </div>
+      <ProfessionalServicesSection
+        membershipId={member.membershipId}
+        canManage={canManage}
+      />
     </div>
   );
 }

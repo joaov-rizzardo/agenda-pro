@@ -1,10 +1,34 @@
-export default function ServicosPage() {
+import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
+import { ServicesView } from "@/components/services/services-view";
+import { prisma } from "@/lib/prisma";
+import { listServices } from "@/lib/workspace/service-catalog-service";
+
+export default async function ServicosPage() {
+  const session = await auth();
+  const workspaceId = session?.user.activeWorkspaceId;
+
+  if (!session || !workspaceId) {
+    redirect("/login");
+  }
+
+  const membership = await prisma.workspaceMembership.findUnique({
+    where: {
+      userId_workspaceId: { userId: session.user.id, workspaceId },
+    },
+    select: { role: true, status: true },
+  });
+
+  if (!membership || membership.status !== "ACTIVE") {
+    redirect("/selecionar-workspace");
+  }
+
+  const services = await listServices(workspaceId);
+
   return (
-    <main className="flex flex-1 flex-col gap-2 p-8">
-      <h1 className="font-display text-2xl font-semibold text-foreground">
-        Serviços
-      </h1>
-      <p className="text-sm text-muted-foreground">Em breve.</p>
+    <main className="flex flex-1 flex-col p-4 md:p-8">
+      <ServicesView callerRole={membership.role} initialServices={services} />
     </main>
   );
 }
